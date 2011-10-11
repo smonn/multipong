@@ -36,18 +36,10 @@ int GamePlay( t_gamedata *game, t_netdata *net, char playernames[5][11],
 	int protate = 0;
 	int direction = 0;
 	SDL_Color textcolor[2];
-	/*
-	int result;
-	int socketready;
-	int tcprecstat;
-	char recievebuffer[100];
-	char cfps[6];
-	*/
 	float lastframe = 0,thisframe = 0;
 	int ff, fps;
 	const Uint32 game_time_updatelength = 15;
 	Uint32 game_time_update_last = 0;
-/*	char sendbuffer[30]; */
 
 	font = TTF_OpenFont("./assets/font.ttf", 30);
 
@@ -94,26 +86,7 @@ int GamePlay( t_gamedata *game, t_netdata *net, char playernames[5][11],
 				return 0;
 			}
 		}
-
-		/* THESE TCP LINES WAS SLOWING DOWN THE CLIENT FPS WITH ~2000!
-		memset(&recievebuffer[0], 0, sizeof(recievebuffer) );
-		socketready = SDLNet_CheckSockets( net->socketset, 100 );
-		if( socketready == -1 )	{
-			printf("SDLNet_CheckSockets: %s\n",SDL_GetError());
-			return -1;
-		}
-		if( socketready > 0 && SDLNet_SocketReady(net->tcpsocket) > 0 )	{
-			result = SDLNet_TCP_Recv( net->tcpsocket, &recievebuffer,  MSG_MAXLEN - 1  );
-			if( result <= 0 ){
-				printf("Error with recieve on tcp socket: %s\n", SDL_GetError());
-				return -1;
-			}
-			else{
-				tcprecstat = UnpackString( recievebuffer, NULL,
-						NULL, result, NULL, &nroplayers, &gamestats);
-			}
-		}
-		*/
+        
 		if ( ReceiveUDPMessage(net, &gamestats, positions) < 0)
 			return -1;
 			/*Reduces fps to ~60 */
@@ -122,22 +95,9 @@ int GamePlay( t_gamedata *game, t_netdata *net, char playernames[5][11],
 			   SDL_GL_SwapBuffers();
 			   glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			   DrawGameBG( nroplayers, texture );
-				 /*
-			   glPushMatrix();
-			   glMatrixMode( GL_MODELVIEW );
-			   glLoadIdentity();
-		       //gluLookAt( 500.0f, 300.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f );
-			   glTranslatef( 500, 290, 0 );
-			   glRotatef(180, 0, 0, 1);
-			   glPushMatrix();
-			   */
 		  	   DrawPlayer(nroplayers, texture, myid, gamestats, positions, paddleinfo );
 		       DrawLifes ( gamestats, nroplayers, myid, texture );
 		       DrawBall( positions, texture );
-		       /*
-		       glPopMatrix();
-   			   glPopMatrix();
-   			   */
 		       DrawCorners ( nroplayers );
 
 		       if( SendUDPMessage(net, direction) < 0 )
@@ -147,7 +107,6 @@ int GamePlay( t_gamedata *game, t_netdata *net, char playernames[5][11],
 		      if (gamestats.winner >= 0){
 		    	  SDLNet_TCP_Close(net->tcpsocket);
 		    	  sprintf(winner,"Winner: %s", playernames[gamestats.winner]);
-		    	  /*glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT ); */
 		    	  glShadeModel(GL_SMOOTH);
 		    	  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		    	  glClearDepth(1.0f);
@@ -155,7 +114,6 @@ int GamePlay( t_gamedata *game, t_netdata *net, char playernames[5][11],
 		    	  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
    	 	    	  glBlendFunc(GL_ONE, GL_ONE);
 				  glEnable(GL_BLEND);
-		    	/*  DrawText( "Winner:", font, textcolor[1], 400, 260); */
 		    	  DrawText( winner, font, textcolor[0], 400, 250);
 		    	  SDL_GL_SwapBuffers();
 		    	  SDL_Delay(7000);
